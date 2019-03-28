@@ -1,18 +1,19 @@
 import React, { Component } from "react";
 import GitHubLogin from "react-github-login";
 import SocialButton from "../SocialButton/SocialButton";
+import SocialLogin from "react-social-login";
 
-// const handleSocialLogin = (user: any) => {
-//   console.log(user);
-// };
+const handleSocialLogin = (user: any) => {
+  console.log(user);
+};
 
-// const handleSocialLoginFailure = (err: any) => {
-//   console.error(err);
-// };
+const handleSocialLoginFailure = (err: any) => {
+  console.error(err);
+};
 const onSuccess = (response: any) => {
   fetch("http://localhost:9999/authenticate/" + response.code)
     .then(function(data) {
-      console.log("data ", data);
+      console.log("success response", data);
       return data.json();
     })
     .then(function(res) {
@@ -57,7 +58,7 @@ class Welcome extends Component {
           onSuccess={onSuccess}
           onFailure={onFailure}
           redirectUri="http://localhost:3000/redirect"
-          scope="gist"
+          scope="user,gist"
         />
         ;
       </div>
