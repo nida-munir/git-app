@@ -20,7 +20,7 @@ class Login extends React.Component<Props, State> {
         accept: "application/json"
       }
     }).then(response => {
-      console.log("res came");
+      console.log("res came", response);
     });
     // fetch("http://localhost:3000/login")
     //   .then(function(response) {
