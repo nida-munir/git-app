@@ -35,6 +35,7 @@ app.post("/api/getAllGists", (req, res) => {
   const gists = new Gists({
     token: token
   });
+  console.log("req body", req.body);
   // GET /gists/
   gists
     .list(name)
@@ -90,12 +91,10 @@ app.post("/api/deleteGist", (req, res) => {
   const {
     body: { token, id }
   } = req;
-  console.log("token: ", token);
   const gists = new Gists({
     token: token
   });
 
-  console.log("id", id);
   gists
     .delete(id)
     .then(r => {
@@ -142,8 +141,6 @@ app.post("/api/getUser", (req, res) => {
   axios
     .get(url)
     .then(function(response) {
-      // console.log(response.data);
-
       return res.send({
         username: response.data.login,
         avatar: response.data.avatar_url

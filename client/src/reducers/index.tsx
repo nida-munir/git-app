@@ -1,15 +1,15 @@
 import {
   IncrementAction,
   UpdateGreetingAction,
-  UpdateTokenAction,
-  UpdateUserAction
+  UpdateUserAction,
+  UpdateGistsAction
 } from "../action-creators/index";
 import * as ActionTypes from "../action-types/index";
 type Action =
   | UpdateGreetingAction
   | IncrementAction
-  | UpdateTokenAction
-  | UpdateUserAction;
+  | UpdateUserAction
+  | UpdateGistsAction;
 import { ApplicationState, defaultState } from "../application-state";
 
 const updateState = (
@@ -18,31 +18,27 @@ const updateState = (
 ) => {
   switch (action.type) {
     case ActionTypes.UPDATE_GREETING:
-      return {
-        ...state,
-        greeting: action.greeting,
-        count: state.count
-      };
-    case ActionTypes.INCREMENT:
-      return {
-        ...state,
-        greeting: state.greeting,
-        count: state.count + 1
-      };
-    case ActionTypes.UPDATE_TOKEN:
-      console.log("updating token, " + action.token);
+      console.log("updating greeting ");
 
       return {
-        ...state,
-        token: action.token
+        ...state
+      };
+
+    case ActionTypes.UPDATE_GISTS:
+      console.log("updating gists, ", action);
+      return {
+        ...state
+        // notes: action.notes
       };
     case ActionTypes.UPDATE_USER:
       console.log("updating user, " + action.user);
-
+      const { username, avatar, token } = action.user;
       return {
         ...state,
-        name: action.user.username,
-        avatar: action.user.avatar
+        username,
+        avatar,
+        token,
+        isAuthenticated: true
       };
     default:
       return state;

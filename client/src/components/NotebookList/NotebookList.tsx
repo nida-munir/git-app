@@ -4,8 +4,47 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import * as Actions from "../../action-creators/index";
 import React from "react";
-import { updateGreeting } from "../../action-creators/index";
+import { updateGists } from "../../action-creators/index";
 // import { connect } from "tls";
+import Button from "antd/lib/button";
+import "./NotebookList.css";
+import { Table, Divider, Tag } from "antd";
+
+const columns = [
+  {
+    title: "Id",
+    dataIndex: "id",
+    key: "id",
+    render: (text: string) => <a>{text}</a>
+  },
+  {
+    title: "Action",
+    key: "action",
+    render: (text: string, record: any) => (
+      <span>
+        <a>Edit</a>
+        <Divider type="vertical" />
+        <a>Delete</a>
+        <Divider type="vertical" />
+        <a>Share</a>
+      </span>
+    )
+  }
+];
+const data = [
+  {
+    key: "1",
+    id: "John Brown"
+  },
+  {
+    key: "2",
+    id: "Jim Green"
+  },
+  {
+    key: "3",
+    id: "Joe Black"
+  }
+];
 
 interface NotebookProps {
   id: number;
@@ -13,6 +52,8 @@ interface NotebookProps {
   notes: Array<Note>;
   notesCount: number;
   token: string;
+  updateGists: () => void;
+  isAuthenticated: boolean;
 }
 
 interface Note {
@@ -22,83 +63,78 @@ interface Note {
 const apiUrl = "http://localhost:5000";
 
 class NotebookList extends React.Component<NotebookProps, {}> {
-  //   state = {
-  //     greeting: ""
-  //   };
-  //   public updateGreetingAction = (e: React.FormEvent<HTMLFormElement>) => {
-  //     // this.props.updateGreeting(this.refs.greetingInputRef.value);
-  //     e.preventDefault();
-  //     console.log("greeting props", this.props);
-  //     this.props.updateGreeting(this.state.greeting);
-  //   };
+  componentDidUpdate() {
+    console.log("will receive props");
 
-  //   handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //     // console.log("greeting props", this.props);
-  //     // this.props.updateGreeting(this.refs.greetingInputRef.value);
-  //     // console.log("greeting updated");
-  //     this.setState({
-  //       greeting: e.currentTarget.value
-  //     });
-  //     // console.log("greeting updated", this.state);
-  //   };
+    const { updateGists, isAuthenticated } = this.props;
+    //updateGists();
+    console.log(isAuthenticated);
 
-  componentDidMount() {
-    console.log("getting all gists");
-    const options = {
-      token: this.props.token,
-      name: "nida-munir"
-    };
-    axios
-      .post(`${apiUrl}/api/getAllGists`, options)
-      .then(function(response) {
-        console.log("response from get all gists", response.data);
-      })
-      .catch(function(error) {
-        console.log("Error while getting gist", error);
-      });
+    if (isAuthenticated) {
+      console.log("fetching gists");
+      updateGists();
+    }
   }
   public render() {
     // console.log("greeting props", this.props);
     const { id, url } = this.props;
-    console.log("props in notebook list", this.props);
+    console.log("updated props in notebook list", this.props);
     return (
-      <div>Note book list</div>
-      //   <form id="greeting" onSubmit={this.updateGreetingAction}>
-      //     <h1 id="greeting-text">{this.props.greeting}</h1>
-      //     <input id="greeting" type="text" onChange={this.handleChange} />
-      //     <input id="greeting-button" type="submit" value="Submit" />
-      //   </form>
+      <div>
+        <Button type="primary">Button</Button>
+        <Table columns={columns} dataSource={data} />,
+      </div>
     );
   }
 }
 
-// type StateProps = Pick<GreetingProps, "greeting">;
-// type DispatchProps = Pick<GreetingProps, "updateGreeting">;
+type NoteBookDispatchProps = Pick<NotebookProps, "updateGists">;
+// type NoteBookStateProps = Pick<
+//   NotebookProps,
+//   ["url", "id", "notes", "notesCount", "token"]
+// >;
 
-function mapStateToProps(state: ApplicationState): NotebookProps {
+interface NoteBookStateProps {
+  id: number;
+  url: string;
+  notes: Array<Note>;
+  notesCount: number;
+  token: string;
+  username: string;
+  avatar: String;
+  isAuthenticated: boolean;
+}
+function mapStateToProps(state: ApplicationState): NoteBookStateProps {
+  const {
+    id,
+    url,
+    notes,
+    notesCount,
+    token,
+    username,
+    avatar,
+    isAuthenticated
+  } = state;
   return {
-    id: state.id,
-    url: state.url,
-    notes: state.notes,
-    notesCount: state.notesCount,
-    token: state.token
+    id,
+    url,
+    notes,
+    notesCount,
+    token,
+    username,
+    avatar,
+    isAuthenticated
   };
 }
 
-// function mapDispatchToProps(dispatch: Dispatch<any>): DispatchProps {
-//   return {
-//     // updateGreeting: (newGreeting: string) => {
-//     //   dispatch(Actions.updateGreeting(newGreeting));
-//     // }
-//     updateGreeting: async (g: string) => {
-//       await dispatch(updateGreeting(g));
-//     }
-//   };
-// }
-
-// const Greeting = connect(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )<{}>(Greeting);
-
-export default connect(mapStateToProps)(NotebookList);
+function mapDispatchToProps(dispatch: Dispatch<any>): NoteBookDispatchProps {
+  return {
+    updateGists: async () => {
+      await dispatch(updateGists());
+    }
+  };
+}
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(NotebookList);

@@ -1,7 +1,6 @@
 import { ApplicationState } from "../../application-state";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import * as Actions from "../../action-creators/index";
 import React from "react";
 import { updateGreeting } from "../../action-creators/index";
 // import { connect } from "tls";

@@ -1,4 +1,4 @@
-import { updateToken, updateUser } from "../../action-creators/index";
+import { updateUser } from "../../action-creators/index";
 import { RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -7,14 +7,12 @@ import GitHubLogin from "react-github-login";
 
 class Welcome extends Component<WelcomeProps, {}> {
   onSuccess = (response: any) => {
-    const { history } = this.props;
+    const { history, updateUser } = this.props;
     fetch("http://localhost:9999/authenticate/" + response.code)
       .then(function(data) {
-        console.log("success response", data);
         return data.json();
       })
       .then(function(res) {
-        console.log(res.token);
         // store in local storage
         var gitHubUser = {
           token: res.token,
@@ -24,8 +22,8 @@ class Welcome extends Component<WelcomeProps, {}> {
 
         // Put the token into storage
         localStorage.setItem("gitHubUser", JSON.stringify(gitHubUser));
+        //updateToken(res.token);
         updateUser(res.token);
-        updateToken(res.token);
         // navigate to notebook list page
         history.push("/notebooks");
       })
@@ -43,7 +41,7 @@ class Welcome extends Component<WelcomeProps, {}> {
   render() {
     const CLIENT_ID = "92bfb1aa190ee8615b78";
     const REDIRECT_URI = "http://localhost:3000/redirect";
-    this.props.history;
+
     return (
       <div>
         {/* <a
@@ -64,20 +62,23 @@ class Welcome extends Component<WelcomeProps, {}> {
   }
 }
 export interface WelcomeProps extends RouteComponentProps<any> {
-  //history: any;
+  updateUser: (token: string) => void;
 }
 
-function mapDispatchToProps(dispatch: Dispatch<any>, ownProps: WelcomeProps) {
+export interface WelcomeDispatchProps {
+  history: any;
+  updateUser: (token: string) => void;
+}
+// type WelcomeDispatchProps = Pick<WelcomeProps, "updateUser,updateToken">;
+// type OwnProps = Pick<WelcomeProps, "history">;
+function mapDispatchToProps(
+  dispatch: Dispatch<any>,
+  ownProps: WelcomeProps
+): WelcomeDispatchProps {
   return {
     history: ownProps.history,
-    // updateGreeting: async (g: string) => {
-    //   await dispatch(updateToken(g));
-    // }
-    updateToken: (token: string) => {
-      dispatch(updateToken(token));
-    },
-    updateUser: (token: string) => {
-      dispatch(updateUser(token));
+    updateUser: async (token: string) => {
+      await dispatch(updateUser(token));
     }
   };
 }
