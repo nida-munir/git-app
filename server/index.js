@@ -41,6 +41,7 @@ app.post("/api/getAllGists", (req, res) => {
     .list(name)
     .then(response => {
       let allGists = [];
+
       response.body.map(response => {
         const gist = new Object();
         const files = [];
@@ -48,11 +49,13 @@ app.post("/api/getAllGists", (req, res) => {
           files.push(member);
         }
         gist.id = response.id;
-        gist.files = files;
-
+        gist.filesCount = files.length;
+        gist.public = response.public;
+        gist.createdAt = response.created_at;
+        gist.html_url = response.html_url;
         allGists.push(gist);
       });
-      return res.send({ status: "Success", gists: allGists });
+      return res.send({ gists: allGists });
     })
     .catch(console.error);
 });

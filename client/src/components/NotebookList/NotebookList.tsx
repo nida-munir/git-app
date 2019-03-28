@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ApplicationState } from "../../application-state";
+import { ApplicationState, Gist } from "../../application-state";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import * as Actions from "../../action-creators/index";
@@ -15,6 +15,18 @@ const columns = [
     title: "Id",
     dataIndex: "id",
     key: "id",
+    render: (text: string) => <a>{text}</a>
+  },
+  {
+    title: "Public",
+    dataIndex: "public",
+    key: "public",
+    render: (text: string) => <a>{text}</a>
+  },
+  {
+    title: "Created At",
+    dataIndex: "createdAt",
+    key: "createdAt",
     render: (text: string) => <a>{text}</a>
   },
   {
@@ -34,23 +46,28 @@ const columns = [
 const data = [
   {
     key: "1",
-    id: "John Brown"
+    id: "John Brown",
+    public: true,
+    createdAt: "das"
   },
   {
     key: "2",
-    id: "Jim Green"
+    id: "Jim Green",
+    public: true,
+    createdAt: "das"
   },
   {
     key: "3",
-    id: "Joe Black"
+    id: "Joe Black",
+    public: true,
+    createdAt: "das"
   }
 ];
 
 interface NotebookProps {
   id: number;
   url: string;
-  notes: Array<Note>;
-  notesCount: number;
+  gists: Array<Gist>;
   token: string;
   updateGists: () => void;
   isAuthenticated: boolean;
@@ -64,21 +81,46 @@ const apiUrl = "http://localhost:5000";
 
 class NotebookList extends React.Component<NotebookProps, {}> {
   componentDidUpdate() {
-    console.log("will receive props");
+    const { updateGists, isAuthenticated } = this.props;
+    //updateGists();
+
+    // if (isAuthenticated) {
+    //   console.log("fetching gists");
+    //   updateGists();
+    // }
+  }
+  componentDidMount() {
+    console.log("did mount");
 
     const { updateGists, isAuthenticated } = this.props;
     //updateGists();
-    console.log(isAuthenticated);
 
     if (isAuthenticated) {
       console.log("fetching gists");
       updateGists();
     }
   }
+
+  getUpdatedGist = () => {
+    console.log("getting updated gists");
+    updateGists();
+  };
+
   public render() {
     // console.log("greeting props", this.props);
-    const { id, url } = this.props;
+    const { id, url, gists, isAuthenticated } = this.props;
     console.log("updated props in notebook list", this.props);
+    if (isAuthenticated) {
+      this.getUpdatedGist();
+    }
+    // map gist data to data source for table
+    // {
+    //     key: "3",
+    //     id: "Joe Black",
+    //     public: true,
+    //     createdAt: "das"
+    //   }
+
     return (
       <div>
         <Button type="primary">Button</Button>
@@ -97,29 +139,18 @@ type NoteBookDispatchProps = Pick<NotebookProps, "updateGists">;
 interface NoteBookStateProps {
   id: number;
   url: string;
-  notes: Array<Note>;
-  notesCount: number;
+  gists: Array<Gist>;
   token: string;
   username: string;
   avatar: String;
   isAuthenticated: boolean;
 }
 function mapStateToProps(state: ApplicationState): NoteBookStateProps {
-  const {
-    id,
-    url,
-    notes,
-    notesCount,
-    token,
-    username,
-    avatar,
-    isAuthenticated
-  } = state;
+  const { id, url, gists, token, username, avatar, isAuthenticated } = state;
   return {
     id,
     url,
-    notes,
-    notesCount,
+    gists,
     token,
     username,
     avatar,

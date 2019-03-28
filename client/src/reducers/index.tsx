@@ -27,7 +27,8 @@ const updateState = (
     case ActionTypes.UPDATE_GISTS:
       console.log("updating gists, ", action);
       return {
-        ...state
+        ...state,
+        gists: action.gists
         // notes: action.notes
       };
     case ActionTypes.UPDATE_USER:

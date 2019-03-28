@@ -3,8 +3,7 @@ export interface ApplicationState {
   count: number;
   id: number;
   url: string;
-  notes: Array<Note>;
-  notesCount: number;
+  gists: Array<Gist>;
   token: string;
   username: string;
   avatar: string;
@@ -17,14 +16,16 @@ export const defaultState: ApplicationState = {
   count: 0,
   id: 0,
   url: "",
-  notes: [],
-  notesCount: 0,
+  gists: [],
   token: "",
   username: "",
   avatar: ""
 };
 
-interface Note {
-  name: string;
-  content: string;
+export interface Gist {
+  id: string;
+  filesCount: number;
+  public: boolean;
+  createdAt: string;
+  html_url: string;
 }

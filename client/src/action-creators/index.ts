@@ -19,7 +19,7 @@ export type UpdateUserAction = {
 };
 export type UpdateGistsAction = {
   type: ActionTypes.UPDATE_GISTS;
-  gists: { id: string; files: {} };
+  gists: [];
 };
 
 export type IncrementAction = {
