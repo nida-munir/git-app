@@ -1,3 +1,4 @@
+const axios = require("axios");
 const Gists = require("gists");
 // save environment variables in dotenv
 require("dotenv").config();
@@ -36,7 +37,7 @@ app.post("/api/getAllGists", (req, res) => {
   });
   // GET /gists/
   gists
-    .list("nida-munir")
+    .list(name)
     .then(response => {
       let allGists = [];
       response.body.map(response => {
@@ -132,98 +133,23 @@ app.post("/api/addGist", (req, res) => {
     .catch(console.error);
 });
 
-// app.post("/api/createGist", (req, res) => {
-//   const token = req.body.token;
-//   // Retrieve the object from storage
-//   // var gitHubUser = localStorage.getItem("gitHubUser");
+app.post("/api/getUser", (req, res) => {
+  // get gist name from body of the request
+  const {
+    body: { token }
+  } = req;
+  const url = `https://api.github.com/user?access_token=${token}`;
+  axios
+    .get(url)
+    .then(function(response) {
+      // console.log(response.data);
 
-//   console.log("token in api: ", token);
-//   const octokit = new Octokit({
-//     auth: token
-//   });
-//   console.log("in /api/createGist");
-//   const options = {
-//     description: "",
-//     public: true,
-//     files: {
-//       name: {
-//         content: "new gits created"
-//       }
-//     }
-//   };
-//   console.log("Options", options);
-//   octokit.gists.create(options).then(result => {
-//     console.log(result);
-//   });
-// });
-
-// app.get("/getAllGists", (req, res) => {
-//   fs.readFile("data.json", (err, data) => {
-//     if (err) {
-//       console.log("Error while reading access_token from json file.");
-//       return;
-//     }
-//     let result = JSON.parse(data);
-//     const gists = new Gists({
-//       token: result.access_token
-//     });
-//     // GET /gists/
-//     gists
-//       .list("nida-munir")
-//       .then(response => {
-//         // console.log("Successfully", response.body);
-//         let allGists = [];
-//         response.body.map(response => {
-//           const gist = new Object();
-//           const files = [];
-//           for (var member in response.files) {
-//             // console.log("Name: ", member);
-//             //console.log("Value: ", response.files[member]);
-//             files.push(member);
-//           }
-//           gist.id = response.id;
-//           gist.files = files;
-
-//           allGists.push(gist);
-//           //console.log(response.id);
-//         });
-//         return res.send({ status: "Success", gists: allGists });
-//       })
-//       .catch(console.error);
-//   });
-// });
-// app.post("/addGist", (req, res) => {
-//   // get gist name from body of the request
-//   const {
-//     body: { name }
-//   } = req;
-
-//   // read access token from json file
-//   fs.readFile("data.json", (err, data) => {
-//     if (err) {
-//       console.log("Error while reading access_token from json file.");
-//       return;
-//     }
-//     let result = JSON.parse(data);
-//     const gists = new Gists({
-//       token: result.access_token
-//     });
-//     const options = {
-//       description: "",
-//       public: true,
-//       files: {
-//         name: {
-//           content: "new gits created"
-//         }
-//       }
-//     };
-//     console.log(options);
-//     gists
-//       .create(options)
-//       .then(r => {
-//         console.log("Successfully created a new gist.");
-//         return res.send({ status: "Success" });
-//       })
-//       .catch(console.error);
-//   });
-// });
+      return res.send({
+        username: response.data.login,
+        avatar: response.data.avatar_url
+      });
+    })
+    .catch(function(err) {
+      console.log("Erro when fetching user profile.. ", err);
+    });
+});
