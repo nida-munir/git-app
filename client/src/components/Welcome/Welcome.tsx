@@ -1,51 +1,49 @@
+import { updateToken, updateUser } from "../../action-creators/index";
+import { RouteComponentProps } from "react-router-dom";
+import { connect } from "react-redux";
+import { Dispatch } from "redux";
 import React, { Component } from "react";
 import GitHubLogin from "react-github-login";
-import SocialButton from "../SocialButton/SocialButton";
-import SocialLogin from "react-social-login";
 
-const handleSocialLogin = (user: any) => {
-  console.log(user);
-};
+class Welcome extends Component<WelcomeProps, {}> {
+  onSuccess = (response: any) => {
+    const { history } = this.props;
+    fetch("http://localhost:9999/authenticate/" + response.code)
+      .then(function(data) {
+        console.log("success response", data);
+        return data.json();
+      })
+      .then(function(res) {
+        console.log(res.token);
+        // store in local storage
+        var gitHubUser = {
+          token: res.token,
+          code: response.code,
+          isAuthenticate: true
+        };
 
-const handleSocialLoginFailure = (err: any) => {
-  console.error(err);
-};
-const onSuccess = (response: any) => {
-  fetch("http://localhost:9999/authenticate/" + response.code)
-    .then(function(data) {
-      console.log("success response", data);
-      return data.json();
-    })
-    .then(function(res) {
-      console.log(res.token);
-      // store in local storage
-      var gitHubUser = {
-        token: res.token,
-        code: response.code,
-        isAuthenticate: true
-      };
+        // Put the token into storage
+        localStorage.setItem("gitHubUser", JSON.stringify(gitHubUser));
+        updateUser(res.token);
+        updateToken(res.token);
+        // navigate to notebook list page
+        history.push("/notebooks");
+      })
+      .catch(function(err) {
+        console.log("err: ", err);
+      });
+  };
+  onFailure = (response: any) => {
+    console.log(response);
+  };
+  constructor(props: WelcomeProps) {
+    super(props);
+  }
 
-      // Put the object into storage
-      localStorage.setItem("gitHubUser", JSON.stringify(gitHubUser));
-
-      // Retrieve the object from storage
-      //var retrievedObject = localStorage.getItem("testObject");
-
-      //console.log("retrievedObject: ", JSON.parse(retrievedObject));
-      // navigate to notebook list page
-    })
-    .catch(function(err) {
-      console.log("err: ", err);
-    });
-};
-const onFailure = (response: any) => {
-  console.log(response);
-};
-const CLIENT_ID = "92bfb1aa190ee8615b78";
-const REDIRECT_URI = "http://localhost:3000/redirect";
-class Welcome extends Component {
-  componentDidMount() {}
   render() {
+    const CLIENT_ID = "92bfb1aa190ee8615b78";
+    const REDIRECT_URI = "http://localhost:3000/redirect";
+    this.props.history;
     return (
       <div>
         {/* <a
@@ -54,10 +52,10 @@ class Welcome extends Component {
           Login
         </a> */}
         <GitHubLogin
-          clientId="92bfb1aa190ee8615b78"
-          onSuccess={onSuccess}
-          onFailure={onFailure}
-          redirectUri="http://localhost:3000/redirect"
+          clientId={CLIENT_ID}
+          onSuccess={this.onSuccess}
+          onFailure={this.onFailure}
+          redirectUri={REDIRECT_URI}
           scope="user,gist"
         />
         ;
@@ -65,5 +63,25 @@ class Welcome extends Component {
     );
   }
 }
+export interface WelcomeProps extends RouteComponentProps<any> {
+  //history: any;
+}
 
-export default Welcome;
+function mapDispatchToProps(dispatch: Dispatch<any>, ownProps: WelcomeProps) {
+  return {
+    history: ownProps.history,
+    // updateGreeting: async (g: string) => {
+    //   await dispatch(updateToken(g));
+    // }
+    updateToken: (token: string) => {
+      dispatch(updateToken(token));
+    },
+    updateUser: (token: string) => {
+      dispatch(updateUser(token));
+    }
+  };
+}
+export default connect(
+  null,
+  mapDispatchToProps
+)(Welcome);
