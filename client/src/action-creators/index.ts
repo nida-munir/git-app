@@ -3,6 +3,7 @@ import { Dispatch } from "redux";
 import axios from "axios";
 // src
 import * as ActionTypes from "../action-types/index";
+import { ApplicationState } from "../application-state";
 
 const apiUrl = "http://localhost:5000/api";
 export type UpdateGreetingAction = {
@@ -22,6 +23,10 @@ export type UpdateGistsAction = {
 export type DeleteGistAction = {
   type: ActionTypes.DELETE_GIST;
   id: string;
+};
+export type GetFilesAction = {
+  type: ActionTypes.GET_FILES;
+  selectedGist: ApplicationState["selectedGist"];
 };
 
 export type CreateGistAction = {
@@ -153,6 +158,29 @@ export function createGist(name: string) {
       })
       .catch(function(error) {
         console.log("Error while creating gist", error);
+      });
+  };
+}
+
+export function getFiles(id: string) {
+  return (dispatch: Dispatch, getState: any) => {
+    console.log("get files action dispatched");
+    const { token } = getState();
+    const options = {
+      token: token,
+      id: id
+    };
+    axios
+      .post(`${apiUrl}/files`, options)
+      .then(function(response) {
+        const selectedGist = response.data;
+        dispatch({
+          type: ActionTypes.GET_FILES,
+          selectedGist: selectedGist
+        });
+      })
+      .catch(function(error) {
+        console.log("Error while getting gist", error);
       });
   };
 }

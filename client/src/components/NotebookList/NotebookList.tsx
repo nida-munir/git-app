@@ -118,6 +118,15 @@ class NotebookList extends React.Component<NotebookProps, {}> {
     });
     console.log("changing");
   };
+
+  handleRowClick = (record: any) => {
+    console.log("row clicked, ", record);
+    this.props.history.push({
+      pathname: "/files",
+      search: `?gistId=${record.id}`
+      //   state: { gistName: record.description }
+    });
+  };
   componentDidMount() {
     const { updateGists } = this.props;
     // get updated gists
@@ -127,6 +136,7 @@ class NotebookList extends React.Component<NotebookProps, {}> {
   public render() {
     const { visible, confirmLoading } = this.state;
     const { gists } = this.props;
+    console.log(this.props);
     return (
       <div>
         <div>
@@ -147,7 +157,13 @@ class NotebookList extends React.Component<NotebookProps, {}> {
             />
           </Modal>
         </div>
-        <Table columns={this.columns} dataSource={gists} rowKey="id" />,
+        <Table
+          columns={this.columns}
+          dataSource={gists}
+          rowKey="id"
+          onRowClick={this.handleRowClick}
+        />
+        ,
       </div>
     );
   }
@@ -161,7 +177,7 @@ interface NotebookProps {
   isAuthenticated: boolean;
   updateGists: () => void;
   deleteGist: (id: string) => void;
-
+  history: any;
   createGist: (id: string) => void;
 }
 // get state and dispatch props from notebook props
@@ -179,8 +195,12 @@ interface NoteBookStateProps {
   username: string;
   avatar: String;
   isAuthenticated: boolean;
+  history: any;
 }
-function mapStateToProps(state: ApplicationState): NoteBookStateProps {
+function mapStateToProps(
+  state: ApplicationState,
+  ownProps: any
+): NoteBookStateProps {
   const { id, url, gists, token, username, avatar, isAuthenticated } = state;
   return {
     id,
@@ -189,7 +209,8 @@ function mapStateToProps(state: ApplicationState): NoteBookStateProps {
     token,
     username,
     avatar,
-    isAuthenticated
+    isAuthenticated,
+    history: ownProps.history
   };
 }
 

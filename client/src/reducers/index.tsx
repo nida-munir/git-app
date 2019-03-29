@@ -4,7 +4,8 @@ import {
   UpdateUserAction,
   UpdateGistsAction,
   DeleteGistAction,
-  CreateGistAction
+  CreateGistAction,
+  GetFilesAction
 } from "../action-creators/index";
 import * as ActionTypes from "../action-types/index";
 type Action =
@@ -13,7 +14,8 @@ type Action =
   | UpdateUserAction
   | UpdateGistsAction
   | DeleteGistAction
-  | CreateGistAction;
+  | CreateGistAction
+  | GetFilesAction;
 import { ApplicationState, defaultState } from "../application-state";
 
 const updateState = (
@@ -57,8 +59,17 @@ const updateState = (
       console.log("updating state with new gist..., " + action.name);
       const { name } = action;
       // const { gists } = state;
+      // update gists here, when returning
       return {
         ...state
+      };
+    case ActionTypes.GET_FILES:
+      console.log("updating currently selected gist", action.selectedGist);
+      const { selectedGist } = action;
+      // const { gists } = state;
+      return {
+        ...state,
+        selectedGist
       };
     default:
       return state;

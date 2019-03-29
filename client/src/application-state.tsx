@@ -8,6 +8,7 @@ export interface ApplicationState {
   username: string;
   avatar: string;
   isAuthenticated: boolean;
+  selectedGist: GistWithFiles;
 }
 
 export const defaultState: ApplicationState = {
@@ -19,18 +20,23 @@ export const defaultState: ApplicationState = {
   gists: [],
   token: "",
   username: "",
-  avatar: ""
+  avatar: "",
+  selectedGist: { id: "", description: "", files: [{ name: "", content: "" }] }
 };
-
+export interface GistWithFiles {
+  id: string;
+  description: string;
+  files: Array<File>;
+}
+export interface File {
+  name: string;
+  content: string;
+}
 export interface Gist {
   id: string;
   filesCount: number;
   public: boolean;
   createdAt: string;
+  description: string;
   html_url: string;
 }
-
-// interface Note {
-//   name: string;
-//   content: string;
-// }
