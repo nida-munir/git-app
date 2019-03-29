@@ -91,11 +91,19 @@ class NotebookList extends React.Component<NotebookProps, {}> {
           <Divider type="vertical" />
           <a onClick={() => this.handleDelete(record)}>Delete</a>
           <Divider type="vertical" />
-          <a>Share</a>
+
+          <a onClick={() => this.showGistUrl(record)}>Share</a>
         </span>
       )
     }
   ];
+
+  showGistUrl = (record: any) => {
+    Modal.success({
+      title: "Url genrated successfully.",
+      content: record.html_url
+    });
+  };
 
   handleDelete = (rec: any) => {
     const { deleteGist } = this.props;
