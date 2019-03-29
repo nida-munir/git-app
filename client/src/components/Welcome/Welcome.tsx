@@ -1,7 +1,7 @@
 import { ApplicationState } from "../../application-state";
 
 import { updateUser } from "../../action-creators/index";
-import { RouteComponentProps } from "react-router-dom";
+// import { RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import React, { Component } from "react";
@@ -9,13 +9,13 @@ import GitHubLogin from "react-github-login";
 
 class Welcome extends Component<WelcomeProps, WelcomeProps> {
   componentDidUpdate() {
-    const { isAuthenticated, ownProps } = this.props;
-    console.log(ownProps);
+    const { isAuthenticated } = this.props;
+    // console.log(ownProps);
     if (isAuthenticated) {
-      console.log("pushing");
+      // console.log("pushing");
       this.props.history.push("/notebooks");
     }
-    console.log(this.props);
+    // console.log(this.props);
     //updateGists();
   }
   onSuccess = (response: any) => {
@@ -36,7 +36,6 @@ class Welcome extends Component<WelcomeProps, WelcomeProps> {
         localStorage.setItem("gitHubUser", JSON.stringify(gitHubUser));
         //updateToken(res.token);
         updateUser(res.token);
-        // navigate to notebook list page
       })
       .catch(function(err) {
         console.log("err: ", err);
@@ -75,7 +74,7 @@ export interface WelcomeProps {
   avatar: string;
   isAuthenticated: boolean;
 }
-
+// pick
 export interface WelcomeStateProps {
   ownProps: any;
   username: string;

@@ -18,10 +18,27 @@ const columns = [
     render: (text: string) => <a>{text}</a>
   },
   {
-    title: "Public",
+    title: "Name",
+    dataIndex: "description",
+    key: "description",
+    render: (text: string) => <a>{text}</a>
+  },
+  {
+    title: "Files Count",
+    dataIndex: "filesCount",
+    key: "filesCount",
+    render: (text: string) => <a>{text}</a>
+  },
+  {
+    title: "Status",
     dataIndex: "public",
     key: "public",
-    render: (text: string) => <a>{text}</a>
+    render: (text: boolean) => {
+      if (text == true) return <a>Public</a>;
+      else {
+        return <a>Private</a>;
+      }
+    }
   },
   {
     title: "Created At",
@@ -43,26 +60,6 @@ const columns = [
     )
   }
 ];
-const data = [
-  {
-    key: "1",
-    id: "John Brown",
-    public: true,
-    createdAt: "das"
-  },
-  {
-    key: "2",
-    id: "Jim Green",
-    public: true,
-    createdAt: "das"
-  },
-  {
-    key: "3",
-    id: "Joe Black",
-    public: true,
-    createdAt: "das"
-  }
-];
 
 interface NotebookProps {
   id: number;
@@ -80,39 +77,24 @@ interface Note {
 const apiUrl = "http://localhost:5000";
 
 class NotebookList extends React.Component<NotebookProps, {}> {
-  componentDidUpdate() {
-    const { updateGists, isAuthenticated } = this.props;
-    //updateGists();
-
-    // if (isAuthenticated) {
-    //   console.log("fetching gists");
-    //   updateGists();
-    // }
-  }
   componentDidMount() {
+    const { updateGists } = this.props;
     console.log("did mount");
-
-    const { updateGists, isAuthenticated } = this.props;
-    //updateGists();
-
-    if (isAuthenticated) {
-      console.log("fetching gists");
-      updateGists();
-    }
-  }
-
-  getUpdatedGist = () => {
-    console.log("getting updated gists");
     updateGists();
-  };
+  }
 
   public render() {
-    // console.log("greeting props", this.props);
     const { id, url, gists, isAuthenticated } = this.props;
     console.log("updated props in notebook list", this.props);
-    if (isAuthenticated) {
-      this.getUpdatedGist();
-    }
+    let dataSource = [];
+    console.log("gists in notebook list: ", gists);
+
+    // const list = gist.gists
+    // map((g: Gist) => console.log(g.id));
+    // gists.map(g => {
+    //   dataSource.push(g);
+    // });
+
     // map gist data to data source for table
     // {
     //     key: "3",
@@ -124,7 +106,7 @@ class NotebookList extends React.Component<NotebookProps, {}> {
     return (
       <div>
         <Button type="primary">Button</Button>
-        <Table columns={columns} dataSource={data} />,
+        <Table columns={columns} dataSource={gists} rowKey="id" />,
       </div>
     );
   }

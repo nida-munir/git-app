@@ -49,13 +49,14 @@ app.post("/api/getAllGists", (req, res) => {
           files.push(member);
         }
         gist.id = response.id;
+        gist.description = response.description;
         gist.filesCount = files.length;
         gist.public = response.public;
         gist.createdAt = response.created_at;
         gist.html_url = response.html_url;
         allGists.push(gist);
       });
-      return res.send({ gists: allGists });
+      return res.send(allGists);
     })
     .catch(console.error);
 });
@@ -117,7 +118,7 @@ app.post("/api/addGist", (req, res) => {
     token: token
   });
   const options = {
-    description: "",
+    description: name,
     public: true,
     files: {
       [name]: {
