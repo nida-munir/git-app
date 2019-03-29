@@ -106,7 +106,30 @@ app.post("/api/deleteGist", (req, res) => {
   gists
     .delete(id)
     .then(r => {
-      console.log("Successfully deleted a new gist.");
+      return res.send(id);
+    })
+    .catch(console.error);
+});
+
+app.post("/api/deleteFile", (req, res) => {
+  const {
+    body: { token, id, fileName }
+  } = req;
+  const gists = new Gists({
+    token: token
+  });
+
+  const options = {
+    files: { [fileName]: null }
+  };
+  console.log("options:", options);
+  gists
+    .edit(id, options)
+    .then(res => {
+      console.log("RESPONSE:", res.body);
+    })
+    .then(r => {
+      console.log("Successfully deleted a gist.");
       return res.send(id);
     })
     .catch(console.error);

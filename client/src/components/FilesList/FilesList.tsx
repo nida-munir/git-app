@@ -17,15 +17,17 @@ class FilesList extends React.Component<FileProps, {}> {
       title: "Action",
       dataIndex: "",
       key: "x",
-      render: () => <a href="javascript:;">Delete</a>
+      render: (text: string, record: any) => (
+        <span>
+          <a>Edit</a>
+          <Divider type="vertical" />
+          <a onClick={() => this.handleDelete(record)}>Delete</a>
+        </span>
+      )
     }
   ];
 
-  //   handleDelete = (rec: any) => {
-  //     const { deleteGist } = this.props;
-  //     deleteGist(rec.id);
-  //     console.log(rec);
-  //   };
+  handleDelete = (rec: any) => {};
 
   componentDidMount() {
     const parsed = queryString.parse(this.props.location.search);
