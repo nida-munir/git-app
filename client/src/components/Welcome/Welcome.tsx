@@ -3,109 +3,83 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import React, { Component } from "react";
 import GitHubLogin from "react-github-login";
+import { Spin } from "antd";
 // src
 import { ApplicationState } from "../../application-state";
+import {
+  updateLocalStorage,
+  updateIsLoading
+} from "../../action-creators/index";
 import "./Welcome.css";
-import { updateUser } from "../../action-creators/index";
 
-class Welcome extends Component<WelcomeProps, WelcomeProps> {
+class Welcome extends Component<WelcomeProps> {
   componentDidUpdate() {
-    const { isAuthenticated } = this.props;
-    // console.log(ownProps);
+    // if user is authenticated, navigate to notebooks page
+    const localStorageItem = localStorage.getItem("gitHubUser") || "";
+    const { isAuthenticated } = JSON.parse(localStorageItem);
     if (isAuthenticated) {
-      // console.log("pushing");
       this.props.history.push("/notebooks");
     }
-    // console.log(this.props);
-    //updateGists();
   }
   onSuccess = (response: any) => {
-    const { updateUser } = this.props;
-    fetch("http://localhost:9999/authenticate/" + response.code)
-      .then(function(data) {
-        return data.json();
-      })
-      .then(function(res) {
-        // store in local storage
-        var gitHubUser = {
-          token: res.token,
-          code: response.code,
-          isAuthenticate: true
-        };
+    const { updateIsLoading } = this.props;
+    console.log("fetching token: set is loading to true");
 
-        // Put the token into storage
-        localStorage.setItem("gitHubUser", JSON.stringify(gitHubUser));
-        //updateToken(res.token);
-        updateUser(res.token);
-      })
-      .catch(function(err) {
-        console.log("err: ", err);
-      });
+    updateIsLoading(true);
+    // dispatch action is loading
+    const { code } = response;
+    const { updateLocalStorage } = this.props;
+    updateLocalStorage(code);
   };
   onFailure = (response: any) => {
-    console.log(response);
+    console.log("Error while getting code. ", response);
   };
-  constructor(props: WelcomeProps) {
-    super(props);
-  }
 
   render() {
     const CLIENT_ID = "92bfb1aa190ee8615b78";
     const REDIRECT_URI = "http://localhost:3000/redirect";
+    const { isLoading } = this.props;
     return (
       <div id="welcome">
-        <GitHubLogin
-          clientId={CLIENT_ID}
-          onSuccess={this.onSuccess}
-          onFailure={this.onFailure}
-          redirectUri={REDIRECT_URI}
-          scope="user,gist"
-        />
+        <Spin spinning={isLoading}>
+          <GitHubLogin
+            clientId={CLIENT_ID}
+            onSuccess={this.onSuccess}
+            onFailure={this.onFailure}
+            redirectUri={REDIRECT_URI}
+            scope="user,gist"
+          />
+        </Spin>
       </div>
     );
   }
 }
+
 export interface WelcomeProps {
-  updateUser: (token: string) => void;
+  updateLocalStorage: (code: string) => void;
   history: any;
   ownProps: any;
-  username: string;
-  avatar: string;
-  isAuthenticated: boolean;
+  isLoading: boolean;
+  updateIsLoading: (isLoading: boolean) => void;
 }
 // pick
-export interface WelcomeStateProps {
-  ownProps: any;
-  username: string;
-  avatar: string;
-  isAuthenticated: boolean;
-}
+type WelcomeStateProps = Pick<WelcomeProps, "ownProps" | "isLoading">;
+type WelcomeDispatchProps = Pick<
+  WelcomeProps,
+  "history" | "updateLocalStorage" | "updateIsLoading"
+>;
 
-export interface WelcomeDispatchProps {
-  history: any;
-  updateUser: (token: string) => void;
-}
-// type WelcomeState = {
-//   username: string;
-//   avatar: string;
-//   isAuthenticated: boolean;
-//   ownProps: any;
-//   updateUser: (token: string) => void;
-// };
-// type WelcomeDispatchProps = Pick<WelcomeProps, "updateUser,updateToken">;
-// type OwnProps = Pick<WelcomeProps, "history">;
 function mapStateToProps(
   state: ApplicationState,
   ownProps: any
 ): WelcomeStateProps {
-  const { username, avatar, isAuthenticated } = state;
+  const { isLoading } = state;
   return {
-    username,
-    avatar,
-    isAuthenticated,
-    ownProps
+    ownProps,
+    isLoading
   };
 }
+// remove username, avatarurl, is authenticated from state
 
 function mapDispatchToProps(
   dispatch: Dispatch<any>,
@@ -113,8 +87,11 @@ function mapDispatchToProps(
 ): WelcomeDispatchProps {
   return {
     history: ownProps.history,
-    updateUser: async (token: string) => {
-      await dispatch(updateUser(token));
+    updateLocalStorage: async (code: string) => {
+      await dispatch(updateLocalStorage(code));
+    },
+    updateIsLoading: async (isLoading: boolean) => {
+      await dispatch(updateIsLoading(isLoading));
     }
   };
 }

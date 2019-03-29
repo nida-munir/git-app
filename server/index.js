@@ -9,7 +9,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // serves up the contents of the /views folder as static
-app.use(express.static("views"));
+// app.use(express.static("views"));
 app.use(express.json());
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -20,25 +20,24 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.get("/", (req, res, next) => {
-  res.sendFile(__dirname + "/index.html");
-});
+// app.get("/", (req, res, next) => {
+//   res.sendFile(__dirname + "/index.html");
+// });
 
 app.listen(port, () => {
   console.log("Server listening at port " + port);
 });
 
-app.post("/api/getAllGists", (req, res) => {
-  console.log("Getting updated gists from github");
+app.post("/api/gists", (req, res) => {
   const {
-    body: { token, name }
+    body: { token, username }
   } = req;
   const gists = new Gists({
     token: token
   });
   // GET /gists/
   gists
-    .list(name)
+    .list(username)
     .then(response => {
       let gists = [];
 
@@ -118,7 +117,7 @@ app.post("/api/deleteFile", (req, res) => {
   const gists = new Gists({
     token: token
   });
-
+  console.log("body", req.body);
   const options = {
     files: { [fileName]: null }
   };
@@ -130,7 +129,7 @@ app.post("/api/deleteFile", (req, res) => {
     })
     .then(r => {
       console.log("Successfully deleted a gist.");
-      return res.send(id);
+      return res.send(fileName);
     })
     .catch(console.error);
 });
@@ -164,20 +163,20 @@ app.post("/api/createGist", (req, res) => {
 });
 
 app.post("/api/getUser", (req, res) => {
-  // get gist name from body of the request
   const {
-    body: { token }
+    body: { token = "" }
   } = req;
   const url = `https://api.github.com/user?access_token=${token}`;
   axios
     .get(url)
     .then(function(response) {
+      const { login, avatar_url } = response.data;
       return res.send({
-        username: response.data.login,
-        avatar: response.data.avatar_url
+        username: login,
+        avatar_url
       });
     })
     .catch(function(err) {
-      console.log("Erro when fetching user profile.. ", err);
+      console.log("Couldn't fetch user profile.", err);
     });
 });

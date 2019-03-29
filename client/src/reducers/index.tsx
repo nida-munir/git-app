@@ -1,21 +1,16 @@
-import {
-  IncrementAction,
-  UpdateGreetingAction,
-  UpdateUserAction,
-  UpdateGistsAction,
-  DeleteGistAction,
-  CreateGistAction,
-  GetFilesAction
-} from "../action-creators/index";
+import * as Actions from "../action-creators/index";
 import * as ActionTypes from "../action-types/index";
 type Action =
-  | UpdateGreetingAction
-  | IncrementAction
-  | UpdateUserAction
-  | UpdateGistsAction
-  | DeleteGistAction
-  | CreateGistAction
-  | GetFilesAction;
+  | Actions.UpdateGreetingAction
+  | Actions.IncrementAction
+  | Actions.UpdateLocalStorage
+  | Actions.UpdateGistsAction
+  | Actions.DeleteGistAction
+  | Actions.CreateGistAction
+  | Actions.GetFilesAction
+  | Actions.DeleteFileAction
+  | Actions.UpdateIsAuthenticatedAction
+  | Actions.UpdateIsLoadingAction;
 import { ApplicationState, defaultState } from "../application-state";
 
 const updateState = (
@@ -29,15 +24,27 @@ const updateState = (
       return {
         ...state
       };
+    case ActionTypes.UPDATE_IS_AUTHENTICATED:
+      const { isAuthenticated } = action;
+      return {
+        ...state,
+        isAuthenticated
+      };
+
+    case ActionTypes.UPDATE_IS_LOADING:
+      const { isLoading } = action;
+      console.log("return state: ", isLoading);
+      return {
+        ...state,
+        isLoading
+      };
 
     case ActionTypes.UPDATE_GISTS:
-      console.log("updating gists, ", action);
       return {
         ...state,
         gists: action.gists
-        // notes: action.notes
       };
-    case ActionTypes.UPDATE_USER:
+    case ActionTypes.UPDATE_LOCAL_STORAGE:
       console.log("updating user, " + action.user);
       const { username, avatar, token } = action.user;
       return {
@@ -48,13 +55,14 @@ const updateState = (
         isAuthenticated: true
       };
     case ActionTypes.DELETE_GIST:
-      console.log("Deleting gist...case" + action.id);
+      console.log("updating gists..." + action.id);
       const { id } = action;
       const { gists } = state;
       return {
         ...state,
         gists: gists.filter(g => g.id !== id)
       };
+
     case ActionTypes.CREATE_GIST:
       console.log("updating state with new gist..., " + action.name);
       const { name } = action;
@@ -70,6 +78,18 @@ const updateState = (
       return {
         ...state,
         selectedGist
+      };
+    case ActionTypes.DELETE_FILE:
+      console.log("deleted file fist id", action.fileName);
+      const { fileName } = action;
+      // const { gists } = state;
+      const { files = [] } = state.selectedGist;
+      const filteredFiles = files.filter(f => f.name !== fileName);
+      const { selectedGist: updatedGist } = state;
+      updatedGist.files = filteredFiles;
+      return {
+        ...state,
+        selectedGist: updatedGist
       };
     default:
       return state;

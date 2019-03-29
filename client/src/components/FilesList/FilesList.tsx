@@ -4,13 +4,15 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import React from "react";
 import { Table, Divider, Tag, Modal, Button, Input } from "antd";
+
 // src
-import { getFiles } from "../../action-creators/index";
+import { getFiles, deleteFile } from "../../action-creators/index";
 import { ApplicationState, Gist } from "../../application-state";
 
 // define column structure to antd table
 
 class FilesList extends React.Component<FileProps, {}> {
+  parsed = queryString.parse(this.props.location.search);
   columns = [
     { title: "Name", dataIndex: "name", key: "name" },
     {
@@ -27,13 +29,17 @@ class FilesList extends React.Component<FileProps, {}> {
     }
   ];
 
-  handleDelete = (rec: any) => {};
+  handleDelete = (rec: any) => {
+    const { gistId } = this.parsed;
+    const { deleteFile } = this.props;
+    console.log("handle delete");
+    deleteFile(gistId, rec.name);
+  };
 
   componentDidMount() {
-    const parsed = queryString.parse(this.props.location.search);
-    console.log("Parse gist id", parsed.gistId);
     const { getFiles } = this.props;
-    getFiles(parsed.gistId);
+    const { gistId } = this.parsed;
+    getFiles(gistId);
   }
 
   public render() {
@@ -57,10 +63,11 @@ class FilesList extends React.Component<FileProps, {}> {
 interface FileProps {
   location: any;
   getFiles: (id: string) => void;
+  deleteFile: (id: string, fileName: string) => void;
   selectedGist: ApplicationState["selectedGist"];
 }
 type FileStateProps = Pick<FileProps, "location" | "selectedGist">;
-type FileDispatchProps = Pick<FileProps, "getFiles">;
+type FileDispatchProps = Pick<FileProps, "getFiles" | "deleteFile">;
 // interface FileDispatchProps {
 //   getFiles: (id: string) => void;
 // }
@@ -79,6 +86,9 @@ function mapDispatchToProps(dispatch: Dispatch<any>): FileDispatchProps {
   return {
     getFiles: async (id: string) => {
       await dispatch(getFiles(id));
+    },
+    deleteFile: async (id: string, fileName: string) => {
+      await dispatch(deleteFile(id, fileName));
     }
   };
 }

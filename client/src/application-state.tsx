@@ -6,9 +6,10 @@ export interface ApplicationState {
   gists: Array<Gist>;
   token: string;
   username: string;
-  avatar: string;
+  avatar_url: string;
   isAuthenticated: boolean;
   selectedGist: GistWithFiles;
+  isLoading: boolean;
 }
 
 export const defaultState: ApplicationState = {
@@ -20,8 +21,9 @@ export const defaultState: ApplicationState = {
   gists: [],
   token: "",
   username: "",
-  avatar: "",
-  selectedGist: { id: "", description: "", files: [] }
+  avatar_url: "",
+  selectedGist: { id: "", description: "", files: [] },
+  isLoading: false
 };
 export interface GistWithFiles {
   id: string;
