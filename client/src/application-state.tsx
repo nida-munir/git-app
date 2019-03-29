@@ -21,7 +21,7 @@ export const defaultState: ApplicationState = {
   token: "",
   username: "",
   avatar: "",
-  selectedGist: { id: "", description: "", files: [{ name: "", content: "" }] }
+  selectedGist: { id: "", description: "", files: [] }
 };
 export interface GistWithFiles {
   id: string;
@@ -31,6 +31,7 @@ export interface GistWithFiles {
 export interface File {
   name: string;
   content: string;
+  raw_url: string;
 }
 export interface Gist {
   id: string;

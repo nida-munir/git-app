@@ -62,7 +62,7 @@ app.post("/api/getAllGists", (req, res) => {
       console.log("Couldn't fetch gists.");
     });
 });
-app.post("/api/getSingleGist", (req, res) => {
+app.post("/api/files", (req, res) => {
   // get gist name from body of the request
   const {
     body: { token, id }
@@ -75,19 +75,21 @@ app.post("/api/getSingleGist", (req, res) => {
   gists
     .get(id)
     .then(data => {
-      let notebook = new Object();
-      notebook.id = id;
-      notebook.html_url = data.body.html_url;
-      let notes = [];
+      let gist = new Object();
+      gist.id = id;
+      gist.html_url = data.body.html_url;
+      gist.description = data.body.description;
+      let files = [];
       for (var member in data.body.files) {
-        let note = new Object();
-        note.name = member;
-        note.content = data.body.files[member].content;
-        notes.push(note);
+        let file = new Object();
+        file.name = member;
+        file.content = data.body.files[member].content;
+        file.raw_url = data.body.files[member].raw_url;
+        files.push(file);
       }
-      notebook.notes = notes;
-      console.log("notebook", notebook);
-      return res.send({ notebook: notebook });
+      gist.files = files;
+      // console.log("gist", gist);
+      return res.send(gist);
     })
     .catch(console.error);
 });

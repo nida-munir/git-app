@@ -1,7 +1,6 @@
 // lib
 const queryString = require("query-string");
 import { Dispatch } from "redux";
-
 import { connect } from "react-redux";
 import React from "react";
 import { Table, Divider, Tag, Modal, Button, Input } from "antd";
@@ -12,57 +11,15 @@ import { ApplicationState, Gist } from "../../application-state";
 // define column structure to antd table
 
 class FilesList extends React.Component<FileProps, {}> {
-  //   columns = [
-  //     {
-  //       title: "Id",
-  //       dataIndex: "id",
-  //       key: "id",
-  //       render: (text: string) => <a>{text}</a>
-  //     },
-  //     {
-  //       title: "Name",
-  //       dataIndex: "description",
-  //       key: "description",
-  //       render: (text: string) => <a>{text}</a>
-  //     },
-  //     {
-  //       title: "Files Count",
-  //       dataIndex: "filesCount",
-  //       key: "filesCount",
-  //       render: (text: string) => <a>{text}</a>
-  //     },
-  //     {
-  //       title: "Status",
-  //       dataIndex: "public",
-  //       key: "public",
-  //       render: (text: boolean) => {
-  //         if (text == true) return <a>Public</a>;
-  //         else {
-  //           return <a>Private</a>;
-  //         }
-  //       }
-  //     },
-  //     {
-  //       title: "Created At",
-  //       dataIndex: "createdAt",
-  //       key: "createdAt",
-  //       render: (text: string) => <a>{text}</a>
-  //     },
-  //     {
-  //       title: "Action",
-  //       key: "action",
-  //       render: (text: string, record: any) => (
-  //         <span>
-  //           <a>Edit</a>
-  //           <Divider type="vertical" />
-  //           <a onClick={() => this.handleDelete(record)}>Delete</a>
-  //           <Divider type="vertical" />
-
-  //           <a onClick={() => this.showGistUrl(record)}>Share</a>
-  //         </span>
-  //       )
-  //     }
-  //   ];
+  columns = [
+    { title: "Name", dataIndex: "name", key: "name" },
+    {
+      title: "Action",
+      dataIndex: "",
+      key: "x",
+      render: () => <a href="javascript:;">Delete</a>
+    }
+  ];
 
   //   handleDelete = (rec: any) => {
   //     const { deleteGist } = this.props;
@@ -79,9 +36,17 @@ class FilesList extends React.Component<FileProps, {}> {
 
   public render() {
     console.log("gists: ", this.props.selectedGist.files);
+    const { files = [] } = this.props.selectedGist;
     return (
       <div>
-        <div />
+        <Table
+          columns={this.columns}
+          expandedRowRender={record => (
+            <p style={{ margin: 0 }}>{record.content}</p>
+          )}
+          dataSource={files}
+          rowKey="raw_url"
+        />
       </div>
     );
   }
