@@ -29,18 +29,18 @@ app.listen(port, () => {
 });
 
 app.post("/api/getAllGists", (req, res) => {
+  console.log("Getting updated gists from github");
   const {
     body: { token, name }
   } = req;
   const gists = new Gists({
     token: token
   });
-  console.log("req body", req.body);
   // GET /gists/
   gists
     .list(name)
     .then(response => {
-      let allGists = [];
+      let gists = [];
 
       response.body.map(response => {
         const gist = new Object();
@@ -54,11 +54,13 @@ app.post("/api/getAllGists", (req, res) => {
         gist.public = response.public;
         gist.createdAt = response.created_at;
         gist.html_url = response.html_url;
-        allGists.push(gist);
+        gists.push(gist);
       });
-      return res.send(allGists);
+      return res.send(gists);
     })
-    .catch(console.error);
+    .catch(function() {
+      console.log("Couldn't fetch gists.");
+    });
 });
 app.post("/api/getSingleGist", (req, res) => {
   // get gist name from body of the request
@@ -103,12 +105,12 @@ app.post("/api/deleteGist", (req, res) => {
     .delete(id)
     .then(r => {
       console.log("Successfully deleted a new gist.");
-      return res.send({ status: "Success", id: id });
+      return res.send(id);
     })
     .catch(console.error);
 });
 
-app.post("/api/addGist", (req, res) => {
+app.post("/api/createGist", (req, res) => {
   // get gist name from body of the request
   const {
     body: { token, name }
@@ -131,7 +133,7 @@ app.post("/api/addGist", (req, res) => {
     .create(options)
     .then(r => {
       console.log("Successfully created a new gist.");
-      return res.send({ status: "Success" });
+      return res.send(r.body.description);
     })
     .catch(console.error);
 });

@@ -29,3 +29,8 @@ export interface Gist {
   createdAt: string;
   html_url: string;
 }
+
+// interface Note {
+//   name: string;
+//   content: string;
+// }

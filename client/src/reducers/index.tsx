@@ -2,14 +2,18 @@ import {
   IncrementAction,
   UpdateGreetingAction,
   UpdateUserAction,
-  UpdateGistsAction
+  UpdateGistsAction,
+  DeleteGistAction,
+  CreateGistAction
 } from "../action-creators/index";
 import * as ActionTypes from "../action-types/index";
 type Action =
   | UpdateGreetingAction
   | IncrementAction
   | UpdateUserAction
-  | UpdateGistsAction;
+  | UpdateGistsAction
+  | DeleteGistAction
+  | CreateGistAction;
 import { ApplicationState, defaultState } from "../application-state";
 
 const updateState = (
@@ -40,6 +44,21 @@ const updateState = (
         avatar,
         token,
         isAuthenticated: true
+      };
+    case ActionTypes.DELETE_GIST:
+      console.log("Deleting gist...case" + action.id);
+      const { id } = action;
+      const { gists } = state;
+      return {
+        ...state,
+        gists: gists.filter(g => g.id !== id)
+      };
+    case ActionTypes.CREATE_GIST:
+      console.log("updating state with new gist..., " + action.name);
+      const { name } = action;
+      // const { gists } = state;
+      return {
+        ...state
       };
     default:
       return state;

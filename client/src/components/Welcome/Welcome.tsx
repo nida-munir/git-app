@@ -1,11 +1,12 @@
-import { ApplicationState } from "../../application-state";
-
-import { updateUser } from "../../action-creators/index";
-// import { RouteComponentProps } from "react-router-dom";
+// lib
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import React, { Component } from "react";
 import GitHubLogin from "react-github-login";
+// src
+import { ApplicationState } from "../../application-state";
+import "./Welcome.css";
+import { updateUser } from "../../action-creators/index";
 
 class Welcome extends Component<WelcomeProps, WelcomeProps> {
   componentDidUpdate() {
@@ -19,7 +20,7 @@ class Welcome extends Component<WelcomeProps, WelcomeProps> {
     //updateGists();
   }
   onSuccess = (response: any) => {
-    const { history, updateUser } = this.props;
+    const { updateUser } = this.props;
     fetch("http://localhost:9999/authenticate/" + response.code)
       .then(function(data) {
         return data.json();
@@ -51,9 +52,8 @@ class Welcome extends Component<WelcomeProps, WelcomeProps> {
   render() {
     const CLIENT_ID = "92bfb1aa190ee8615b78";
     const REDIRECT_URI = "http://localhost:3000/redirect";
-    console.log(this.props);
     return (
-      <div>
+      <div id="welcome">
         <GitHubLogin
           clientId={CLIENT_ID}
           onSuccess={this.onSuccess}
@@ -61,7 +61,6 @@ class Welcome extends Component<WelcomeProps, WelcomeProps> {
           redirectUri={REDIRECT_URI}
           scope="user,gist"
         />
-        ;
       </div>
     );
   }

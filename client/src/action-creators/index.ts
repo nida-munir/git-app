@@ -1,17 +1,14 @@
-import * as ActionTypes from "../action-types/index";
+// lib
 import { Dispatch } from "redux";
 import axios from "axios";
+// src
+import * as ActionTypes from "../action-types/index";
 
-const apiUrl = "http://localhost:5000";
+const apiUrl = "http://localhost:5000/api";
 export type UpdateGreetingAction = {
   type: ActionTypes.UPDATE_GREETING;
   greeting: string;
 };
-
-// export type UpdateTokenAction = {
-//   type: ActionTypes.UPDATE_TOKEN;
-//   token: string;
-// };
 
 export type UpdateUserAction = {
   type: ActionTypes.UPDATE_USER;
@@ -22,6 +19,16 @@ export type UpdateGistsAction = {
   gists: [];
 };
 
+export type DeleteGistAction = {
+  type: ActionTypes.DELETE_GIST;
+  id: string;
+};
+
+export type CreateGistAction = {
+  type: ActionTypes.CREATE_GIST;
+  name: string;
+};
+
 export type IncrementAction = {
   type: ActionTypes.INCREMENT;
 };
@@ -30,6 +37,8 @@ export type updateGreeting = typeof updateGreeting;
 export type increment = typeof increment;
 export type updateUser = typeof updateUser;
 export type updateGists = typeof updateGists;
+export type deleteGist = typeof deleteGist;
+export type createGist = typeof createGist;
 
 export function updateGreeting(name: string) {
   return (dispatch: Dispatch, getState: any) => {
@@ -58,9 +67,8 @@ export function updateUser(token: string) {
       token: token
     };
     axios
-      .post("http://localhost:5000/api/getuser", options)
+      .post(`${apiUrl}/getuser`, options)
       .then(function(response) {
-        // console.log("/api/getUser response", response);
         const { username, avatar } = response.data;
         var user = {
           username,
@@ -71,10 +79,6 @@ export function updateUser(token: string) {
           type: ActionTypes.UPDATE_USER,
           user: user
         });
-        // dispatch({
-        //   type: ActionTypes.UPDATE_TOKEN,
-        //   token
-        // });
       })
       .catch(function(error) {
         console.log("Error while getting user profile", error);
@@ -90,16 +94,14 @@ export function increment(): IncrementAction {
 
 export function updateGists() {
   return (dispatch: Dispatch, getState: any) => {
-    console.log("State in update gists action: ", getState());
     const { token, username } = getState();
     const options = {
       token: token,
       name: username
     };
     axios
-      .post(`${apiUrl}/api/getAllGists`, options)
+      .post(`${apiUrl}/getAllGists`, options)
       .then(function(response) {
-        console.log("api/getAllGists response", response.data);
         dispatch({
           type: ActionTypes.UPDATE_GISTS,
           gists: response.data
@@ -107,6 +109,50 @@ export function updateGists() {
       })
       .catch(function(error) {
         console.log("Error while getting gist", error);
+      });
+  };
+}
+
+export function deleteGist(id: string) {
+  return (dispatch: Dispatch, getState: any) => {
+    const { token } = getState();
+    const options = {
+      token: token,
+      id: id
+    };
+    axios
+      .post(`${apiUrl}/deleteGist`, options)
+      .then(function(response) {
+        const id = response.data;
+        dispatch({
+          type: ActionTypes.DELETE_GIST,
+          id: id
+        });
+      })
+      .catch(function(error) {
+        console.log("Error while getting gist", error);
+      });
+  };
+}
+
+export function createGist(name: string) {
+  return (dispatch: Dispatch, getState: any) => {
+    const { token } = getState();
+    const options = {
+      token: token,
+      name: name
+    };
+    axios
+      .post(`${apiUrl}/createGist`, options)
+      .then(function(response) {
+        const name = response.data;
+        dispatch({
+          type: ActionTypes.DELETE_GIST,
+          name: name
+        });
+      })
+      .catch(function(error) {
+        console.log("Error while creating gist", error);
       });
   };
 }

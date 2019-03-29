@@ -1,123 +1,168 @@
+// lib
 import axios from "axios";
-import { ApplicationState, Gist } from "../../application-state";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import * as Actions from "../../action-creators/index";
 import React from "react";
-import { updateGists } from "../../action-creators/index";
-// import { connect } from "tls";
-import Button from "antd/lib/button";
+import { Table, Divider, Tag, Modal, Button, Input } from "antd";
+// src
 import "./NotebookList.css";
-import { Table, Divider, Tag } from "antd";
+import {
+  updateGists,
+  deleteGist,
+  createGist
+} from "../../action-creators/index";
+import { ApplicationState, Gist } from "../../application-state";
 
-const columns = [
-  {
-    title: "Id",
-    dataIndex: "id",
-    key: "id",
-    render: (text: string) => <a>{text}</a>
-  },
-  {
-    title: "Name",
-    dataIndex: "description",
-    key: "description",
-    render: (text: string) => <a>{text}</a>
-  },
-  {
-    title: "Files Count",
-    dataIndex: "filesCount",
-    key: "filesCount",
-    render: (text: string) => <a>{text}</a>
-  },
-  {
-    title: "Status",
-    dataIndex: "public",
-    key: "public",
-    render: (text: boolean) => {
-      if (text == true) return <a>Public</a>;
-      else {
-        return <a>Private</a>;
+// define column structure to antd table
+
+class NotebookList extends React.Component<NotebookProps, {}> {
+  state = {
+    visible: false,
+    confirmLoading: false,
+    userInput: ""
+  };
+  showModal = () => {
+    this.setState({
+      visible: true
+    });
+  };
+  handleOk = () => {
+    this.setState({
+      confirmLoading: true
+    });
+    const { createGist } = this.props;
+    const { userInput } = this.state;
+    createGist(userInput);
+    setTimeout(() => {
+      this.setState({
+        visible: false,
+        confirmLoading: false
+      });
+    }, 2000);
+  };
+  handleCancel = () => {
+    console.log("Clicked cancel button");
+    this.setState({
+      visible: false
+    });
+  };
+  columns = [
+    {
+      title: "Id",
+      dataIndex: "id",
+      key: "id",
+      render: (text: string) => <a>{text}</a>
+    },
+    {
+      title: "Name",
+      dataIndex: "description",
+      key: "description",
+      render: (text: string) => <a>{text}</a>
+    },
+    {
+      title: "Files Count",
+      dataIndex: "filesCount",
+      key: "filesCount",
+      render: (text: string) => <a>{text}</a>
+    },
+    {
+      title: "Status",
+      dataIndex: "public",
+      key: "public",
+      render: (text: boolean) => {
+        if (text == true) return <a>Public</a>;
+        else {
+          return <a>Private</a>;
+        }
       }
+    },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (text: string) => <a>{text}</a>
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (text: string, record: any) => (
+        <span>
+          <a>Edit</a>
+          <Divider type="vertical" />
+          <a onClick={() => this.handleDelete(record)}>Delete</a>
+          <Divider type="vertical" />
+          <a>Share</a>
+        </span>
+      )
     }
-  },
-  {
-    title: "Created At",
-    dataIndex: "createdAt",
-    key: "createdAt",
-    render: (text: string) => <a>{text}</a>
-  },
-  {
-    title: "Action",
-    key: "action",
-    render: (text: string, record: any) => (
-      <span>
-        <a>Edit</a>
-        <Divider type="vertical" />
-        <a>Delete</a>
-        <Divider type="vertical" />
-        <a>Share</a>
-      </span>
-    )
-  }
-];
+  ];
 
+  handleDelete = (rec: any) => {
+    const { deleteGist } = this.props;
+    deleteGist(rec.id);
+    console.log(rec);
+  };
+  handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+
+    this.setState({
+      userInput: value
+    });
+    console.log("changing");
+  };
+  componentDidMount() {
+    const { updateGists } = this.props;
+    // get updated gists
+    updateGists();
+  }
+
+  public render() {
+    const { visible, confirmLoading } = this.state;
+    const { gists } = this.props;
+    return (
+      <div>
+        <div>
+          <Button type="primary" onClick={this.showModal}>
+            Add new Gist
+          </Button>
+          <Modal
+            title="Add new gist"
+            visible={visible}
+            onOk={this.handleOk}
+            confirmLoading={confirmLoading}
+            onCancel={this.handleCancel}
+          >
+            <Input
+              placeholder="Gist Name"
+              id="gistName"
+              onChange={this.handleInputChange}
+            />
+          </Modal>
+        </div>
+        <Table columns={this.columns} dataSource={gists} rowKey="id" />,
+      </div>
+    );
+  }
+}
+//  all notebook props
 interface NotebookProps {
   id: number;
   url: string;
   gists: Array<Gist>;
   token: string;
-  updateGists: () => void;
   isAuthenticated: boolean;
+  updateGists: () => void;
+  deleteGist: (id: string) => void;
+
+  createGist: (id: string) => void;
 }
+// get state and dispatch props from notebook props
 
-interface Note {
-  name: string;
-  content: string;
+interface NoteBookDispatchProps {
+  updateGists: () => void;
+  deleteGist: (id: string) => void;
+  createGist: (id: string) => void;
 }
-const apiUrl = "http://localhost:5000";
-
-class NotebookList extends React.Component<NotebookProps, {}> {
-  componentDidMount() {
-    const { updateGists } = this.props;
-    console.log("did mount");
-    updateGists();
-  }
-
-  public render() {
-    const { id, url, gists, isAuthenticated } = this.props;
-    console.log("updated props in notebook list", this.props);
-    let dataSource = [];
-    console.log("gists in notebook list: ", gists);
-
-    // const list = gist.gists
-    // map((g: Gist) => console.log(g.id));
-    // gists.map(g => {
-    //   dataSource.push(g);
-    // });
-
-    // map gist data to data source for table
-    // {
-    //     key: "3",
-    //     id: "Joe Black",
-    //     public: true,
-    //     createdAt: "das"
-    //   }
-
-    return (
-      <div>
-        <Button type="primary">Button</Button>
-        <Table columns={columns} dataSource={gists} rowKey="id" />,
-      </div>
-    );
-  }
-}
-
-type NoteBookDispatchProps = Pick<NotebookProps, "updateGists">;
-// type NoteBookStateProps = Pick<
-//   NotebookProps,
-//   ["url", "id", "notes", "notesCount", "token"]
-// >;
-
 interface NoteBookStateProps {
   id: number;
   url: string;
@@ -144,6 +189,12 @@ function mapDispatchToProps(dispatch: Dispatch<any>): NoteBookDispatchProps {
   return {
     updateGists: async () => {
       await dispatch(updateGists());
+    },
+    deleteGist: async (id: string) => {
+      await dispatch(deleteGist(id));
+    },
+    createGist: async (name: string) => {
+      await dispatch(createGist(name));
     }
   };
 }
